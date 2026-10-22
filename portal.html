@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Цифровой Военный билет / удостоверение призывника</title>
+<style>
+:root{--bg:#0b1210;--panel:#111c18;--panel2:#16251f;--line:#1f3a30;--text:#e6f0ea;--muted:#8fa89c;--acc:#7fd1a8;--acc2:#22c55e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 600px at 50% -10%,#16322a 0,var(--bg) 60%) fixed;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 48px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:8px 0 16px;gap:8px}
+.top small{color:var(--acc);letter-spacing:2px;font-size:11px;text-transform:uppercase}
+.back{background:none;border:1px solid var(--line);color:var(--text);padding:10px 14px;border-radius:10px;font-size:14px;cursor:pointer;visibility:hidden}
+.back.on{visibility:visible}
+.screen{display:none;animation:in .25s ease}.screen.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.landing{min-height:70vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:20px}
+.landing .logo{width:84px;height:84px;border:2px solid var(--acc);border-radius:20px;display:grid;place-items:center;box-shadow:0 0 40px rgba(127,209,168,.25)}
+.landing h1{font-size:clamp(24px,6vw,38px);line-height:1.2;font-weight:700}
+.landing h1 span{display:block;color:var(--acc);font-size:.6em;font-weight:500;margin-top:8px;letter-spacing:1px}
+.btn{background:var(--acc2);color:#04200d;border:0;padding:18px 56px;font-size:18px;font-weight:700;border-radius:14px;cursor:pointer;letter-spacing:1px;box-shadow:0 10px 30px rgba(34,197,94,.3)}
+.btn:active{transform:scale(.98)}
+h2.t{font-size:22px;margin:4px 0 16px}
+.menu{display:grid;gap:12px}
+.mi{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 20px;cursor:pointer;text-align:left;color:var(--text);font-size:19px;font-weight:600;width:100%}
+.mi:hover{border-color:var(--acc)}
+.mi .n{width:44px;height:44px;border-radius:12px;background:var(--panel2);color:var(--acc);display:grid;place-items:center;font-weight:700;flex:none}
+.mi em{display:block;font-style:normal;font-size:13px;color:var(--muted);font-weight:400;margin-top:2px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:14px;scrollbar-width:thin}
+.tab{flex:none;background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:12px 16px;border-radius:12px;font-size:14px;cursor:pointer;white-space:nowrap}
+.tab.on{background:var(--acc2);color:#04200d;border-color:var(--acc2);font-weight:700}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;line-height:1.55}
+.pane h3{color:var(--acc);font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:18px 0 8px}
+.pane h3:first-child{margin-top:0}
+.pane p{margin-bottom:8px;font-size:15px}
+.pane ul{list-style:none}
+.pane li{padding:10px 0 10px 18px;border-bottom:1px solid var(--line);font-size:15px;position:relative}
+.pane li:last-child{border:0}
+.pane li:before{content:"";position:absolute;left:0;top:19px;width:6px;height:6px;background:var(--acc2);border-radius:1px}
+.pane li b{color:#fff}
+.note{margin-top:14px;padding:12px 14px;border-left:3px solid var(--acc);background:var(--panel2);border-radius:8px;font-size:14px;color:var(--muted)}
+.form{max-width:460px;margin:0 auto;display:grid;gap:14px}
+.form label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px}
+.form input{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);padding:16px;border-radius:12px;font-size:16px;outline:none}
+.form input:focus{border-color:var(--acc)}
+.form .err{color:#f87171;font-size:14px;min-height:20px}
+.btn.full{width:100%;padding:16px}
+.btn.sec{background:var(--panel2);color:var(--text);border:1px solid var(--line);box-shadow:none;font-size:15px}
+.test{display:inline-block;background:#3a2f0b;border:1px solid #a8861c;color:#ffd866;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;vertical-align:middle}
+.testbox{background:#3a2f0b;border:1px solid #a8861c;color:#ffd866;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.5}
+.vbadge{display:flex;align-items:center;gap:14px;padding:16px;margin:-20px -20px 8px;background:linear-gradient(90deg,rgba(34,197,94,.18),rgba(34,197,94,.05));border-bottom:1px solid var(--line);border-radius:16px 16px 0 0}
+.vbadge .ic{width:40px;height:40px;border-radius:50%;background:var(--acc2);display:grid;place-items:center;flex:none}
+.vbadge b{display:block;color:var(--acc2);font-size:15px}
+.vbadge span{color:var(--muted);font-size:12px}
+.drow{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.drow:last-child{border:0}
+.drow dt{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.8px}
+.drow dd{font-size:16px;line-height:1.4}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px}
+.out{background:none;border:1px solid var(--line);color:var(--muted);padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;margin-top:16px}
+@media(max-width:520px){.drow{grid-template-columns:1fr;gap:4px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><button class="back" id="back">← Назад</button><small>Цифровой Военный билет / удостоверение призывника</small></div>
+
+  <section class="screen on" id="s-land">
+    <div class="landing">
+      <div class="logo"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#7fd1a8" stroke-width="1.6"><path d="M12 2l8 3v6c0 5-3.4 9-8 11-4.6-2-8-6-8-11V5z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
+      <h1>Цифровой Военный билет / удостоверение призывника<span>Информационный портал</span></h1>
+      <button class="btn" id="enter">Вход</button>
+    </div>
+  </section>
+
+  <section class="screen" id="s-login">
+    <h2 class="t">Введите данные</h2>
+    <div class="form" id="form">
+      <div><label for="f-name">ФИО</label><input id="f-name" placeholder="Фамилия Имя Отчество"></div>
+      <div><label for="f-num">Номер военного билета / удостоверения призывника</label><input id="f-num" inputmode="numeric" placeholder="1234567"></div>
+      <div><label for="f-pass">Пароль</label><input id="f-pass" type="password" placeholder="Пароль"></div>
+      <div class="err" id="f-err" role="alert"></div>
+      <button class="btn full" type="button" id="login">Войти</button>
+      <button class="btn full sec" type="button" id="demo">Создать тестовый профиль</button>
+      <div class="testbox"><span class="test">Тест</span> Тестовый профиль подставляет вымышленные данные: Иванов Иван Иванович, 1234567, пароль 1111.</div>
+    </div>
+  </section>
+
+  <section class="screen" id="s-menu">
+    <h2 class="t">Выберите категорию</h2>
+    <div class="menu" id="menu"></div>
+    <button class="out" id="logout">Выйти из профиля</button>
+  </section>
+
+  <section class="screen" id="s-sec">
+    <h2 class="t" id="sec-title"></h2>
+    <div class="tabs" id="tabs"></div>
+    <div class="pane" id="pane"></div>
+  </section>
+</div>
+
+<script>
+const L=a=>'<ul>'+a.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+const DATA=[
+{id:1,name:'Допризывник',sub:'Поступление в вузы, экзамены, баллы',tabs:[
+ {t:'ВУЗы нацбезопасности',h:`<p>В систему обеспечения нацбезопасности РБ входят специализированные вузы (военные, МВД, МЧС, пограничные) и гражданские вузы с военными факультетами.</p>
+ <h3>Специализированные вузы</h3>`+L(['<b>УО «Военная академия Республики Беларусь»</b> — главный военный вуз, командные и инженерные специальности.','<b>ГУО «Институт пограничной службы Республики Беларусь»</b> — кадры для пограничной службы.','<b>УО «Академия МВД Республики Беларусь»</b> — система МВД.','<b>УО «Могилевский институт МВД Республики Беларусь»</b> — система МВД.','<b>ГУО «Университет гражданской защиты МЧС РБ»</b> — специалисты по чрезвычайным ситуациям.'])+`<h3>Военные факультеты (институты) в гражданских вузах</h3>`+L(['<b>Военный факультет БГУ</b> — ракетные войска и артиллерия.','<b>Военно-технический факультет БНТУ</b> — инженерные войска.','<b>Военно-медицинский институт БГМУ</b> — военная медицина.','<b>Военный факультет БГУИР</b> — связь, телекоммуникации и радиоэлектроника.','<b>Военный факультет БГАА</b> — эксплуатация воздушных судов и БПЛА.','<b>Военный факультет ГрГУ им. Янки Купалы</b> — физкультура, тыловое обеспечение.','<b>Военно-транспортный факультет БелГУТ</b> — железнодорожные войска, транспорт.'])},
+ {t:'Экзамены',h:`<h3>Общие требования</h3><p>Сдача ЦЭ/ЦТ по предметам + профессиональный отбор (физическая подготовка, психоотбор, медкомиссия).</p><h3>Силовые вузы</h3>`+L(['<b>Военная академия:</b> командные — Математика, Физика/История, Язык + физподготовка; инженерные — Математика, Физика, Язык; ВВС и ПВО — Математика, Физика, Язык + строгая ВЛК.','<b>Институт погранслужбы:</b> Математика, История Беларуси/Физика, Язык + физподготовка, психоотбор.','<b>Академия МВД и Могилевский институт МВД:</b> История Беларуси, Обществоведение, Язык + физподготовка, тест.','<b>Университет ГЗ МЧС:</b> Математика, Физика/Химия, Язык + физподготовка.'])+`<h3>Военные факультеты</h3>`+L(['<b>БГУ, БНТУ, БГУИР, БГАА, БелГУТ:</b> Математика, Физика, Язык + физподготовка (для БГАА — ВЛК).','<b>БГМУ:</b> Химия, Биология, Язык + профессиональное собеседование.','<b>ГрГУ:</b> Математика/История, Физика/Обществоведение, Язык.'])},
+ {t:'Проходные баллы (2025–2026)',h:L(['<b>Военная академия РБ (2025):</b> лётные специальности («Управление воздушными судами») — минимальный балл 299; общий минимальный — около 200–240.','<b>Академия МВД РБ (2026):</b> факультет уголовно-исполнительной системы (девушки) — 354; факультет криминальной милиции (юноши) — 305–314.','<b>Остальные вузы:</b> данные уточняются в приёмных комиссиях.'])}
+]},
+{id:2,name:'Призывник',sub:'Медтребования, войска, явка и отсрочки',tabs:[
+ {t:'Медицинские требования',h:`<h3>Категории годности</h3>`+L(['<b>ГО</b> — годен.','<b>ВН</b> — временно не годен (до 6 мес.).','<b>НГМ</b> — не годен в мирное время.','<b>НГИ</b> — не годен со снятием с учёта.'])+`<h3>Примеры требований (Расписание болезней)</h3>`+L(['<b>Сердечно-сосудистая система:</b> регургитация клапанов, малые аномалии сердца без нарушения ритма — годен с ограничениями.','<b>Кожа:</b> тяжёлые формы экземы/псориаза — НГ.','<b>Инфекционные болезни:</b> бактерионосительство — НГ в мирное время.','<b>Костно-мышечная система:</b> грыжи с симптомом кашлевого толчка — ограничение.'])+`<div class="note">ВВК оценивает степень нарушения функций органа, а не только диагноз.</div>`},
+ {t:'Виды и рода войск',h:`<h3>Виды ВС</h3>`+L(['<b>Сухопутные войска:</b> механизированные, ракетные войска и артиллерия, войсковая ПВО.','<b>ВВС и войска ПВО:</b> авиация, ЗРВ, радиотехнические войска.'])+`<h3>Отдельные рода и войска</h3>`+L(['<b>Силы специальных операций (ССО).</b>','<b>Специальные войска:</b> разведка, инженерные, связь, РЭБ, топографы.'])},
+ {t:'Общая информация',h:`<h3>Явка и документы</h3>`+L(['Паспорт, удостоверение призывника, водительское удостоверение (при наличии).','Уважительная причина неявки требует прибытия в течение 5 дней после её устранения.'])+`<h3>Отсрочки</h3>`+L(['По учёбе (предоставляется 1 раз).','По семейным обстоятельствам: беременная жена, ребёнок до 3 лет, ребёнок/родитель-инвалид I/II группы.'])+`<h3>Что взять с собой</h3>`+L(['Документы в обложке.','Гигиена: мыло, паста, щётка, бритва, пластыри.','Чёрные носки, тетрадь/ручки.','Наличные (~50 BYN).','Кнопочный телефон без камеры и интернета (сдаётся командиру).'])}
+]},
+{id:3,name:'Военнообязанный',sub:'Сборы, воинский учёт, обязанности',tabs:[
+ {t:'Медицинские требования',h:`<h3>Категории</h3>`+L(['<b>ГО</b> — годен.','<b>ГО с незначительными ограничениями.</b>','<b>ОГ</b> — ограниченно годен.','<b>НГ</b> — не годен в мирное время.'])+`<h3>Особенности</h3>`+L(['С возрастом (после 40–45 лет) требования смягчаются.','К элитным ВУС (ВДВ, спецназ) требования остаются высокими.','Ухудшение здоровья требует уведомления военкомата в течение 2 недель.'])},
+ {t:'Условия сборов и быт',h:`<h3>Размещение</h3><p>Казармы или общежития воинской части, соблюдение распорядка дня.</p><h3>Обеспечение</h3>`+L(['Выдача формы, вещевого имущества и питания.','Сохранение рабочего места, среднего заработка и выплата денежного довольствия от МО.','Гражданская одежда сдаётся на хранение.'])+`<h3>Сроки</h3>`+L(['До 25 или до 60 суток (лимит за время нахождения в запасе — до 12 месяцев).','Телефоны сдаются на хранение.'])},
+ {t:'Общие положения и учёт',h:`<h3>Обязанности</h3>`+L(['Явка по повестке (паспорт + военный билет).','Уведомление военкомата в недельный срок об изменении адреса, работы, телефона, семейного положения.','При выезде за границу более чем на 6 месяцев — личный визит в военкомат.'])+`<h3>Призыв на сборы</h3><p>Статус военнослужащего срочной службы. Неявка без уважительной причины влечёт ответственность по закону.</p>`}
+]}];
+const PROFILE={name:'Иванов Иван Иванович',num:'1234567',pass:'1111'};
+const T=' <span class="test">тест</span>';
+const D=(k,v)=>'<div class="drow"><dt>'+k+'</dt><dd>'+v+'</dd></div>';
+DATA.push({id:4,name:'Данные о военнослужащем / допризывнике',sub:'Личные данные и статус документа',tabs:[
+ {t:'Данные владельца',h:`<div class="vbadge"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06220f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><b>Статус: Документ верифицирован / Подлинный</b><span id="vts"></span></div></div>
+ <div class="testbox" style="margin:12px 0"><span class="test">Тест</span> Все данные ниже вымышленные и показаны в демонстрационных целях.</div><dl>`+
+ D('ФИО','Иванов Иван Иванович'+T)+D('Дата рождения','15.05.2003'+T)+D('Серия и номер','<span class="mono">МБ-1234567</span>'+T)+D('Статус','Прохождение службы / Военнообязанный'+T)+D('Воинская часть','В/Ч 3214, г. Минск'+T)+D('История службы / отметки','Прохождение срочной военной службы (2023–2024 гг.), ВУС-100868'+T)+'</dl>'}
+]});
+const $=id=>document.getElementById(id), back=$('back');
+let view='land', cur=null;
+function show(v){view=v;['land','login','menu','sec'].forEach(x=>$('s-'+x).classList.toggle('on',x===v));back.classList.toggle('on',v!=='land');window.scrollTo(0,0)}
+$('menu').innerHTML=DATA.map(d=>`<button class="mi" data-i="${d.id-1}"><span class="n">${d.id}</span><span>${d.name}<em>${d.sub}</em></span></button>`).join('');
+function tab(i){const s=DATA[cur];$('pane').innerHTML=s.tabs[i].h;const ts=$('vts');if(ts)ts.textContent='Проверено: '+new Date().toLocaleString('ru-RU');[...$('tabs').children].forEach((b,j)=>b.classList.toggle('on',j===i))}
+function open(i){cur=i;const s=DATA[i];$('sec-title').textContent=s.id+'. '+s.name;
+ $('tabs').innerHTML=s.tabs.map((t,j)=>`<button class="tab" data-j="${j}">${t.t}</button>`).join('');tab(0);show('sec')}
+const norm=x=>x.trim().replace(/\s+/g,' ').toLowerCase();
+$('enter').onclick=()=>{$('f-err').textContent='';show('login')};
+$('demo').onclick=()=>{$('f-name').value=PROFILE.name;$('f-num').value=PROFILE.num;$('f-pass').value=PROFILE.pass;$('f-err').textContent=''};
+const doLogin=()=>{
+ const ok=norm($('f-name').value)===norm(PROFILE.name)&&$('f-num').value.trim()===PROFILE.num&&$('f-pass').value===PROFILE.pass;
+ if(!ok){$('f-err').textContent='Неверные данные. Проверьте ФИО, номер и пароль или создайте тестовый профиль.';return}
+ $('f-pass').value='';show('menu')};
+$('login').onclick=doLogin;
+$('form').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+$('logout').onclick=()=>{$('f-name').value=$('f-num').value=$('f-pass').value='';show('land')};
+$('menu').onclick=e=>{const b=e.target.closest('.mi');if(b)open(+b.dataset.i)};
+$('tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)tab(+b.dataset.j)};
+back.onclick=()=>show(view==='sec'?'menu':view==='login'?'land':'land');
+</script>
+</body>
+</html>

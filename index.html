@@ -7,6 +7,7 @@
 <style>
 :root{--bg:#0b1210;--panel:#111c18;--panel2:#16251f;--line:#1f3a30;--text:#e6f0ea;--muted:#8fa89c;--acc:#7fd1a8;--acc2:#22c55e}
 *{box-sizing:border-box;margin:0;padding:0}
+html{background:#0b1210}
 body{background:radial-gradient(1200px 600px at 50% -10%,#16322a 0,var(--bg) 60%) fixed;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
 .wrap{max-width:860px;margin:0 auto;padding:16px 16px 48px}
 .top{display:flex;align-items:center;justify-content:space-between;padding:8px 0 16px;gap:8px}
@@ -59,7 +60,21 @@ h2.t{font-size:22px;margin:4px 0 16px}
 .drow dd{font-size:16px;line-height:1.4}
 .mono{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px}
 .out{background:none;border:1px solid var(--line);color:var(--muted);padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;margin-top:16px}
-@media(max-width:520px){.drow{grid-template-columns:1fr;gap:4px}}
+.pbadge{display:flex;align-items:center;gap:14px;padding:16px;margin:-20px -20px 8px;background:var(--panel2);border-bottom:1px solid var(--line);border-radius:16px 16px 0 0}
+.pbadge .ic{width:40px;height:40px;border-radius:50%;border:2px solid #a8861c;color:#ffd866;display:grid;place-items:center;flex:none;font-weight:800;font-size:18px;font-family:Georgia,serif}
+.pbadge b{display:block;color:#ffd866;font-size:15px}
+.pbadge span{color:var(--muted);font-size:12px}
+.secnote{margin:0 0 14px}
+.roles{width:100%;border-collapse:collapse;font-size:15px}
+.roles th{text-align:left;color:var(--acc);font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:0 10px 8px 0;border-bottom:1px solid var(--line)}
+.roles td{vertical-align:top;padding:12px 10px 12px 0;border-bottom:1px solid var(--line)}
+.roles tr:last-child td{border:0}
+.roles td:first-child{font-weight:700;color:#fff;white-space:nowrap}
+.pane ol{list-style:none;counter-reset:st}
+.pane ol li{counter-increment:st;padding:10px 0 10px 38px;border-bottom:1px solid var(--line);position:relative;font-size:15px}
+.pane ol li:last-child{border:0}
+.pane ol li:before{content:counter(st);position:absolute;left:0;top:8px;width:26px;height:26px;border-radius:8px;background:var(--panel2);color:var(--acc);display:grid;place-items:center;font-weight:700;font-size:13px}
+@media(max-width:520px){.drow{grid-template-columns:1fr;gap:4px}.roles td:first-child{white-space:normal}}
 </style>
 </head>
 <body>
@@ -93,8 +108,28 @@ h2.t{font-size:22px;margin:4px 0 16px}
     <button class="out" id="logout">Выйти из профиля</button>
   </section>
 
+  <section class="screen" id="s-ticket">
+    <h2 class="t">4. Военный билет</h2>
+    <div class="menu" id="ticket">
+      <button class="mi" id="go-owner"><span class="n">1</span><span>Данные для призывника / военнообязанного<em>Данные владельца · демонстрационный профиль</em></span></button>
+      <button class="mi" id="go-vk"><span class="n">2</span><span>Данные для военкоматов<em>Служебный доступ · концепция модуля</em></span></button>
+    </div>
+  </section>
+
+  <section class="screen" id="s-vk">
+    <h2 class="t">Данные для военкоматов</h2>
+    <div class="form" id="vkform">
+      <div class="testbox"><span class="test">Демо</span> Служебный вход показан в упрощённом виде. Пароль для демонстрации: <b>1111</b>.</div>
+      <div><label for="vk-pass">Пароль</label><input id="vk-pass" type="password" placeholder="Пароль"></div>
+      <div class="err" id="vk-err" role="alert"></div>
+      <button class="btn full" type="button" id="vk-login">Войти</button>
+      <button class="btn full sec" type="button" id="vk-demo">Подставить демо-пароль</button>
+    </div>
+  </section>
+
   <section class="screen" id="s-sec">
     <h2 class="t" id="sec-title"></h2>
+    <div class="secnote" id="sec-note" hidden></div>
     <div class="tabs" id="tabs"></div>
     <div class="pane" id="pane"></div>
   </section>
@@ -122,31 +157,69 @@ const DATA=[
 const PROFILE={name:'Иванов Иван Иванович',num:'1234567',pass:'1111'};
 const T=' <span class="test">тест</span>';
 const D=(k,v)=>'<div class="drow"><dt>'+k+'</dt><dd>'+v+'</dd></div>';
-DATA.push({id:4,name:'Данные о военнослужащем / допризывнике',sub:'Личные данные и статус документа',tabs:[
- {t:'Данные владельца',h:`<div class="vbadge"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06220f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><b>Статус: Документ верифицирован / Подлинный</b><span id="vts"></span></div></div>
+DATA.push({id:4,name:'Военный билет',sub:'Данные владельца и модуль для военкоматов',branch:true});
+const OWNER={id:4,name:'Данные для призывника / военнообязанного',tabs:[
+ {t:'Данные владельца',h:`<div class="pbadge"><div class="ic">i</div><div><b>Демонстрационный профиль</b><span>Данные вымышленные и нужны для показа концепции</span></div></div>
  <div class="testbox" style="margin:12px 0"><span class="test">Тест</span> Все данные ниже вымышленные и показаны в демонстрационных целях.</div><dl>`+
  D('ФИО','Иванов Иван Иванович'+T)+D('Дата рождения','15.05.2003'+T)+D('Серия и номер','<span class="mono">МБ-1234567</span>'+T)+D('Статус','Прохождение службы / Военнообязанный'+T)+D('Воинская часть','В/Ч 3214, г. Минск'+T)+D('История службы / отметки','Прохождение срочной военной службы (2023–2024 гг.), ВУС-100868'+T)+'</dl>'}
-]});
+]};
+const VK={id:4,name:'Модуль для военкоматов',note:'<div class="testbox"><span class="test">Концепция</span> Здесь описано, как устроен модуль. Данных конкретного человека на этой странице нет.</div>',tabs:[
+ {t:'Сведения в модуле',h:`<p>Модуль даёт военному комиссариату доступ к учётным сведениям граждан, которые состоят у него на воинском учёте.</p><h3>Категории сведений</h3>`+L([
+  '<b>Ф.И.О.</b> — Иванов Иван Иванович',
+  '<b>Дата рождения</b> — 17.02.2000',
+  '<b>Выдан</b> — Витебским РВК',
+  '<b>Ощие сведения</b> — Родился в городе Витебск. Образование высшее(УО"БНТУ"), энергетик. Гражданская специальность - инженер-энергетик. Семейное положение - холост.',
+  '<b>Отношение к военной службе, службе в резерве</b> — Призывной комиссией Витебского РВК призван на срочную военную службу и направлен в 120 ОМБр. Военную присягу принес 15 ноября 2024 года в В/Ч 3673. 17.06.2025 года уволен со срочной военной службы и направлен в Витебский РВК.',
+  '<b>Прохождение службы</b> — 120 ОМБр, ВУС - 171100. Зачислен в списки - 15.10.2024. Пр-к КВЧ 3271, № 153 от 15.10.2024. Исключен из списков - 17.06.2025. Пр-к КВЧ 3271, № 177 от 17.05.2025.',
+  '<b>Присвоение воинских званий и классной квалификации по специальности.</b> — Рядовой - 15.11.2024, Пр-к КВЧ 3271 № 19.',
+  '<b>Вооружение и техническое имущество</b> — 5.45 автомат АКС-74 № 18389021. Выдан: 15.11.2024, в количестве 1(одна) единица. Сдан: 17.05.2025 в количестве 1(одна) единица.',
+  '<b>Медицинские освидетельствования</b> — 15.11.2024, Г-на основании Пост. МО РБ №15 от 03.05.1994.',
+  '<b>Антропометрия</b> — рост - 185 см., окружность головы - 56см., Размер противогаза - 3, размер обмундирования - 50/3, размер обуви - 44.'])},
+ {t:'Кто что видит',h:`<table class="roles"><thead><tr><th>Кто</th><th>Что видит и может</th></tr></thead><tbody>
+  <tr><td>Гражданин</td><td>Свои общие сведения и отметки о службе. Только просмотр.</td></tr>
+  <tr><td>Военкомат</td><td>Все категории сведений по гражданам на своём учёте. Внесение отметок.</td></tr>
+  <tr><td>Проверка по QR</td><td>Действителен ли документ, фамилия и инициалы. Остальные сведения скрыты.</td></tr>
+ </tbody></table><h3>Как работает служебный вход</h3><ol>
+  <li>Сотрудник входит по служебной учётной записи с электронной цифровой подписью.</li>
+  <li>Находит гражданина по номеру документа.</li>
+  <li>Видит сведения в пределах своих полномочий.</li>
+  <li>Каждое обращение записывается в журнал.</li></ol><div class="note">В демонстрации вход упрощён до пароля 1111.</div>`},
+ {t:'Защита данных',h:L([
+  '<b>Шифрование</b> сведений при передаче и хранении.',
+  '<b>Разграничение доступа</b> по ролям: каждый видит только то, что нужно для его задач.',
+  '<b>Журнал обращений</b>: кто, когда и к каким сведениям обращался.',
+  '<b>Минимум сведений при проверке по QR</b>: статус документа без личных подробностей.',
+  '<b>Правовая основа</b>: Закон Республики Беларусь «О защите персональных данных».'])}
+]};
 const $=id=>document.getElementById(id), back=$('back');
-let view='land', cur=null;
-function show(v){view=v;['land','login','menu','sec'].forEach(x=>$('s-'+x).classList.toggle('on',x===v));back.classList.toggle('on',v!=='land');window.scrollTo(0,0)}
+let view='land', cur=null, stack=[];
+function show(v){view=v;['land','login','menu','ticket','vk','sec'].forEach(x=>$('s-'+x).classList.toggle('on',x===v));back.classList.toggle('on',v!=='land');window.scrollTo(0,0)}
+function go(v,replace){if(!replace&&view!==v)stack.push(view);show(v)}
 $('menu').innerHTML=DATA.map(d=>`<button class="mi" data-i="${d.id-1}"><span class="n">${d.id}</span><span>${d.name}<em>${d.sub}</em></span></button>`).join('');
-function tab(i){const s=DATA[cur];$('pane').innerHTML=s.tabs[i].h;const ts=$('vts');if(ts)ts.textContent='Проверено: '+new Date().toLocaleString('ru-RU');[...$('tabs').children].forEach((b,j)=>b.classList.toggle('on',j===i))}
-function open(i){cur=i;const s=DATA[i];$('sec-title').textContent=s.id+'. '+s.name;
- $('tabs').innerHTML=s.tabs.map((t,j)=>`<button class="tab" data-j="${j}">${t.t}</button>`).join('');tab(0);show('sec')}
+function tab(i){const s=cur;$('pane').innerHTML=s.tabs[i].h;[...$('tabs').children].forEach((b,j)=>b.classList.toggle('on',j===i))}
+function open(s,replace){cur=s;$('sec-title').textContent=s.id+'. '+s.name;
+ $('sec-note').innerHTML=s.note||'';$('sec-note').hidden=!s.note;
+ $('tabs').innerHTML=s.tabs.map((t,j)=>`<button class="tab" data-j="${j}">${t.t}</button>`).join('');tab(0);go('sec',replace)}
 const norm=x=>x.trim().replace(/\s+/g,' ').toLowerCase();
-$('enter').onclick=()=>{$('f-err').textContent='';show('login')};
+$('enter').onclick=()=>{$('f-err').textContent='';go('login')};
 $('demo').onclick=()=>{$('f-name').value=PROFILE.name;$('f-num').value=PROFILE.num;$('f-pass').value=PROFILE.pass;$('f-err').textContent=''};
 const doLogin=()=>{
  const ok=norm($('f-name').value)===norm(PROFILE.name)&&$('f-num').value.trim()===PROFILE.num&&$('f-pass').value===PROFILE.pass;
  if(!ok){$('f-err').textContent='Неверные данные. Проверьте ФИО, номер и пароль или создайте тестовый профиль.';return}
- $('f-pass').value='';show('menu')};
+ $('f-pass').value='';stack=[];show('menu')};
 $('login').onclick=doLogin;
 $('form').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
-$('logout').onclick=()=>{$('f-name').value=$('f-num').value=$('f-pass').value='';show('land')};
-$('menu').onclick=e=>{const b=e.target.closest('.mi');if(b)open(+b.dataset.i)};
+$('logout').onclick=()=>{$('f-name').value=$('f-num').value=$('f-pass').value='';stack=[];show('land')};
+$('go-owner').onclick=()=>open(OWNER);
+$('go-vk').onclick=()=>{$('vk-pass').value='';$('vk-err').textContent='';go('vk')};
+$('vk-demo').onclick=()=>{$('vk-pass').value='1111';$('vk-err').textContent=''};
+const vkLogin=()=>{if($('vk-pass').value!=='1111'){$('vk-err').textContent='Неверный пароль. Для демонстрации используйте 1111.';return}
+ $('vk-pass').value='';open(VK,true)};
+$('vk-login').onclick=vkLogin;
+$('vkform').addEventListener('keydown',e=>{if(e.key==='Enter')vkLogin()});
+$('menu').onclick=e=>{const b=e.target.closest('.mi');if(!b)return;const d=DATA[+b.dataset.i];if(d.branch)go('ticket');else open(d)};
 $('tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)tab(+b.dataset.j)};
-back.onclick=()=>show(view==='sec'?'menu':view==='login'?'land':'land');
+back.onclick=()=>{if(view==='menu'){stack=[];show('land');return}show(stack.length?stack.pop():'land')};
 </script>
 </body>
 </html>
